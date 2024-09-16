@@ -2,6 +2,9 @@
 
 namespace App\Providers;
 
+use App\Models\Site;
+use App\Models\User;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -19,6 +22,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        Gate::define('show_site',function(User $user,Site $site){
+            return $user->id === $site->user_id;
+        });
     }
 }

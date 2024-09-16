@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\SiteResource;
 use App\Models\Site;
 use App\Models\User;
+use Illuminate\Support\Facades\Gate;
+
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
 
@@ -16,7 +18,9 @@ class SiteController extends Controller
      */
     public function index(User $user)
     {
-        $sites = $user->sites()->with('trucks')->latest()->get();
+        // if(Gate::denies('see-site',$))
+
+        $sites = $user->sites()->with('trucks','monthlySummarys')->latest()->get();
 
         return SiteResource::collection($sites);
     }
@@ -67,13 +71,18 @@ class SiteController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(User $user, Site $site)
+    public function show(User $user, $siteId)
     {
-        if ($user->sites()->where('id', $site->id)->exists()) {
-            return new SiteResource($site);
-        } else {
-            return response()->json(['message' => 'A telephely nem található a megadott felhasználónál.'], 404);
+        // Ellenőrizzük, hogy a felhasználónak van-e jogosultsága a site-hoz a Gate segítségével
+        if(Gate::forUser($user)->denies('show-site',$siteId)){
+            abort(403,'Ez a telephely nem hozzád tartozik.');
         }
+    
+            // 
+        $site = $user->sites()->with('trucks', 'monthlySummaries')->find($siteId);
+
+    
+        return new SiteResource($site);
     }
     
 

@@ -24,7 +24,7 @@ class SiteSeeder extends Seeder
         }
 
         $this->call(TruckSeeder::class);
-
+        $this->call(MonthlySummarySeeder::class);
 
     }
 }
