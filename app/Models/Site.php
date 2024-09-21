@@ -31,7 +31,7 @@ class Site extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function monthlySummarys():HasMany{
+    public function monthlySummaries():HasMany{
         return $this->hasMany(MonthlySummary::class);
     }
 }

@@ -18,7 +18,7 @@ return new class extends Migration
 
             $table->integer('all_routes_length')->nullable();
             $table->integer('income')->nullable();
-            $table->date('month');
+            $table->string('month');
             $table->integer('expenses');
             $table->foreignIdFor(Site::class);
         });

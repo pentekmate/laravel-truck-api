@@ -6,39 +6,63 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\SiteResource;
 use App\Models\Site;
 use App\Models\User;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Support\Facades\Gate;
 
 use Illuminate\Http\Request;
+use Illuminate\Routing\Controllers\HasMiddleware;
+use Illuminate\Routing\Controllers\Middleware;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
 
-class SiteController extends Controller
+class SiteController extends Controller implements HasMiddleware
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index(User $user)
-    {
-        // if(Gate::denies('see-site',$))
+    use AuthorizesRequests;
 
-        $sites = $user->sites()->with('trucks','monthlySummarys')->latest()->get();
-
-        return SiteResource::collection($sites);
+    public static function middleware():array{
+        return[
+            new Middleware('auth:sanctum')
+        ];
+    }
+    //working
+    public function index($userid){
+       try{
+            $userLoggedIn = Auth::user();
+            $user = User::findOrFail($userid);
+            if($userLoggedIn->id !== $user->id){
+                return response()->json([
+                    'message'=>'Ez a site nem hozzád tartozik.'
+                ],403);
+            }
+            
+               
+            $sites = $user->sites()->with('trucks', 'monthlySummaries')->get();
+            return new SiteResource($sites);
+             
+       }
+       catch (ModelNotFoundException $e) {
+        return response()->json([
+            'message' => 'Nem található a keresett user.',
+            'error' => $e->getMessage()
+        ], 404);
+        }
+        catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Valami hiba történt.',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request,User $user)
-    {
-        
+    public function store($userid,Request $request,){
+     
+        $result = Auth::user()->id===intval($userid);
+        if(!$result){
+            return response()->json([
+                'message'=>'Ez a funkció nem hozzád tartozik.'
+            ],403);
+        }
         $validatedData = $request->validate([
             'address' => 'required|max:100|string',
             'name' => 'required|max:100|string',
@@ -48,59 +72,55 @@ class SiteController extends Controller
             'close_time' => 'required|date_format:H:i:s',
             'capacity' => 'required|integer',
             'manager_name' => 'required|max:100|string',
+            
         ]);
-        $validatedData['user_id']=$user->id;
-     
-        $site = Site::create($validatedData);
-    
-       
-        if ($site) {
-           
+        $validatedData['user_id']=$userid;
+        
+
+        Site::create($validatedData);
+
+        return response()->json([
+            'message'=>'Sikeres létrehozás!'
+        ]);
+        
+    }
+
+   //working
+    public function show(User $user,$siteid){
+       try{
+            $site = Site::findOrFail($siteid);
+            if (Gate::denies('view', $site)) {
+                return response()->json(['message' => 'This action is unauthorized.'], 403);
+            }
+            $site->load('trucks', 'monthlySummaries');
+
+            if(!$site){
+                return 'rossz';
+            }
+            return new SiteResource($site);
+       }
+       catch (ModelNotFoundException $e) {
+        // Ha a rekord nem található
+        return response()->json([
+            'message' => 'Nem található a keresett site.',
+            'error' => $e->getMessage()
+        ], 404);
+        }
+        catch (\Exception $e) {
             return response()->json([
-                'message' => 'Telephely sikeresen létrehozva!',
-                'site' => $site,
-            ], 201); 
-        } else {
-           
-            return response()->json([
-                'message' => 'Hiba történt a telephely létrehozása közben.',
-            ], 500); 
+                'message' => 'Valami hiba történt.',
+                'error' => $e->getMessage()
+            ], 500);
         }
     }
+    
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(User $user, $siteId)
-    {
-        // Ellenőrizzük, hogy a felhasználónak van-e jogosultsága a site-hoz a Gate segítségével
-        if(Gate::forUser($user)->denies('show-site',$siteId)){
-            abort(403,'Ez a telephely nem hozzád tartozik.');
+    //working
+    public function update(Request $request,User $user, Site $site){
+        if (Gate::denies('update', $site)) {
+            return response()->json(['message' => 'This action is unauthorized.'], 403);
         }
-    
-            // 
-        $site = $user->sites()->with('trucks', 'monthlySummaries')->find($siteId);
-
-    
-        return new SiteResource($site);
-    }
-    
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Site $site)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request,User $user, Site $site)
-    {
         try{
-
             $validatedData = $request->validate([
                 'address' => 'required|max:100|string',
                 'name' => 'required|max:100|string',
@@ -129,15 +149,33 @@ class SiteController extends Controller
        
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(User $user,Site $site)
+    //working
+    public function destroy(User $user,$siteId)
     {
-        Site::destroy($site);
+        try{
+            $site = Site::findOrFail($siteId);
+            if (Gate::denies('delete', $site)) {
+                return response()->json(['message' => 'This action is unauthorized.'], 403);
+            }
 
-        return response()->json([
-            'message'=>'Telephely sikeresen törölve!'
-        ]);
+            Site::destroy($siteId);
+    
+            return response()->json([
+                'message'=>'Telephely sikeresen törölve!'
+            ]);
+        }
+        catch (ModelNotFoundException $e) {
+            return response()->json([
+                'message' => 'Nem található a keresett site.',
+                'error' => $e->getMessage()
+            ], 404);
+            }
+            catch (\Exception $e) {
+                return response()->json([
+                    'message' => 'Valami hiba történt.',
+                    'error' => $e->getMessage()
+                ], 500);
+            }
+
     }
 }
