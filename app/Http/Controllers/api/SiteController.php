@@ -26,6 +26,7 @@ class SiteController extends Controller implements HasMiddleware
         ];
     }
     //working
+    
     public function index($userid){
        try{
             $userLoggedIn = Auth::user();
@@ -100,7 +101,6 @@ class SiteController extends Controller implements HasMiddleware
             return new SiteResource($site);
        }
        catch (ModelNotFoundException $e) {
-        // Ha a rekord nem található
         return response()->json([
             'message' => 'Nem található a keresett site.',
             'error' => $e->getMessage()

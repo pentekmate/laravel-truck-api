@@ -17,4 +17,4 @@ Route::post('/login',[AuthController::class,'login']);
 
 Route::apiResource('user.site',SiteController::class)->scoped()->except(['edit','create']);
 
-// Route::apiResource('user.sites.trucks',TruckController::class)->scoped()->except(['update','edit','destroy','store']);
+Route::apiResource('user.sites.trucks',TruckController::class)->scoped()->except(['update','edit','destroy','store']);
