@@ -30,8 +30,6 @@ class AuthController extends Controller
             ]);
         }
 
-
-
         $token = $user->createToken('api-token')->plainTextToken;
         $user->notify(
             new UserLoggedIn()
