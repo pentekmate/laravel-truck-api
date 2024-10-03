@@ -31,7 +31,6 @@ Nyisd meg a terminált, és futtasd az alábbi parancsot a projekt klónozásáh
 Használj Composer-t és npm-et a PHP függőségek telepítéséhez:
 
     composer install
-    npm install
 
 ### 4. Környezeti változók beállítása
 Hozz létre egy `.env` fájlt, és másold bele a `.env.example` tartalmát:
@@ -62,6 +61,14 @@ Az alkalmazás mostantól elérhető lesz a [http://localhost:8000](http://local
 ### Autentikáció
 - **POST** `api/login`  
   Autentikáció végrehajtása. (Login)
+#### Példa kérés:
+
+```
+{
+   "email": "laurine79@example.org",
+   "password": "password"
+} 
+```
 
 ### Telephelyek kezelése
 - **GET** `api/user/{user}/site`  
@@ -71,6 +78,20 @@ Az alkalmazás mostantól elérhető lesz a [http://localhost:8000](http://local
 - **POST** `api/user/{user}/site`  
   Új telephely hozzáadása.  
 
+#### Példa kérés:
+
+```
+{
+    "address":"Hajdúnánás",//string
+    "name":"testadat",//string
+    "phone_number":"073272823",//string
+    "email":"asd@gmail.com",//string
+    "open_time":"08:00:00",//string
+    "close_time":"16:00:00",//string
+    "capacity":60,//number
+    "manager_name":"John Pork"//string
+}
+```
 
 - **GET** `api/user/{user}/site/{site}`  
   Telephely részleteinek megtekintése.  
@@ -79,6 +100,20 @@ Az alkalmazás mostantól elérhető lesz a [http://localhost:8000](http://local
 - **PUT/PATCH** `api/user/{user}/site/{site}`  
   Telephely adatainak frissítése.  
 
+#### Példa kérés:
+
+```
+{
+    "address":"Hajdúnánás",//string
+    "name":"testadat",//string
+    "phone_number":"073272823",//string
+    "email":"asd@gmail.com",//string
+    "open_time":"08:00:00",//string
+    "close_time":"16:00:00",//string
+    "capacity":60,//number
+    "manager_name":"John Pork"//string
+}
+```
 
 - **DELETE** `api/user/{user}/site/{site}`  
   Telephely törlése.  
