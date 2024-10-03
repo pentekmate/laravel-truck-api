@@ -61,7 +61,7 @@ Az alkalmazás mostantól elérhető lesz a [http://localhost:8000](http://local
 ### Autentikáció
 - **POST** `api/login`  
   Autentikáció végrehajtása. (Login)
-#### Példa kérés:
+#### Várt adatok:
 
 ```
 {
@@ -78,7 +78,7 @@ Az alkalmazás mostantól elérhető lesz a [http://localhost:8000](http://local
 - **POST** `api/user/{user}/site`  
   Új telephely hozzáadása.  
 
-#### Példa kérés:
+#### Várt adatok:
 
 ```
 {
@@ -100,7 +100,7 @@ Az alkalmazás mostantól elérhető lesz a [http://localhost:8000](http://local
 - **PUT/PATCH** `api/user/{user}/site/{site}`  
   Telephely adatainak frissítése.  
 
-#### Példa kérés:
+#### Várt adatok:
 
 ```
 {
