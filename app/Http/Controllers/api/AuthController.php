@@ -35,7 +35,8 @@ class AuthController extends Controller
             new UserLoggedIn()
         );
         return response()->json([
-            'token'=>$token
+            'token'=>$token,
+            'user'=>$user
         ]);
 
       
@@ -46,7 +47,7 @@ class AuthController extends Controller
          $request->user()->tokens()->delete();
  
          return response()->json([
-             'message' => 'Kijelentkezés sikeres'
+             'message' => 'Sikeres kijelentkezés'
          ]);
      }
 }

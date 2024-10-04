@@ -96,7 +96,7 @@ class SiteController extends Controller implements HasMiddleware
             $site->load('trucks', 'monthlySummaries');
 
             if(!$site){
-                return 'rossz';
+                return 'Nem található a site';
             }
             return new SiteResource($site);
        }
